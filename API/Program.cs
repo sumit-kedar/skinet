@@ -1,3 +1,4 @@
+using API.Middleware;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -5,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 builder.Services.AddDbContext<StoreContext>(options =>
 {
@@ -13,11 +13,15 @@ builder.Services.AddDbContext<StoreContext>(options =>
 });
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddCors();
 
 var app = builder.Build();
-//app.UseAuthorization();
 
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseCors(x => 
+                x.AllowAnyHeader()
+                .AllowAnyHeader()
+                .WithOrigins("http://localhost:4200", "https://localhost:4200"));
 app.MapControllers();
 
 try
